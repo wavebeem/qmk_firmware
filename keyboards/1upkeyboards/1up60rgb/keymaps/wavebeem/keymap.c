@@ -39,7 +39,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		_______, _______, _______, RGB_VAD, RGB_VAI, RGB_SAI, RGB_HUD, RGB_HUI, RGB_MOD, RGB_TOG, _______, _______,
 		_______, _______, _______, _______, _______, _______, _______, _______),
 };
-
+m;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
