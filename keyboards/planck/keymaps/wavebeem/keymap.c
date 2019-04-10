@@ -1,5 +1,11 @@
 #include QMK_KEYBOARD_H
 
+enum planck_keycodes {
+  SONG_1 = SAFE_RANGE,
+  SONG_2,
+  SONG_3
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [0] = LAYOUT_planck_grid(
@@ -31,10 +37,47 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [4] = LAYOUT_planck_grid(
-    _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_SLSH , KC_7    , KC_8    , KC_9    , KC_ASTR ,
+    _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_SLSH , KC_7    , KC_8    , KC_9    , KC_BSPC ,
     _______ , KC_MUTE , KC_VOLD , KC_VOLU , _______ , _______ , _______ , KC_MINS , KC_4    , KC_5    , KC_6    , KC_PLUS ,
     KC_CAPS , KC_MPLY , KC_MPRV , KC_MNXT , _______ , _______ , _______ , KC_TAB  , KC_1    , KC_2    , KC_3    , KC_ENT  ,
-    _______ , _______ , _______ , _______ , _______ , RESET   , RESET   , _______ , KC_COMM , KC_0    , KC_DOT  , KC_BSPC
+    _______ , SONG_1  , SONG_2  , SONG_3  , _______ , RESET   , RESET   , _______ , KC_COMM , KC_0    , KC_DOT  , KC_ASTR
   )
 
 };
+
+// Find songs in `quantum/audio/song_list.h`
+#ifdef AUDIO_ENABLE
+  float song_1[][2] = SONG(ZELDA_PUZZLE);
+  float song_2[][2] = SONG(ZELDA_TREASURE);
+  float song_3[][2] = SONG(COIN_SOUND);
+#endif
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case SONG_1:
+      if (record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(song_1);
+        #endif
+      }
+      return false;
+      break;
+    case SONG_2:
+      if (record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(song_2);
+        #endif
+      }
+      return false;
+      break;
+    case SONG_3:
+      if (record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(song_3);
+        #endif
+      }
+      return false;
+      break;
+  }
+  return true;
+}
