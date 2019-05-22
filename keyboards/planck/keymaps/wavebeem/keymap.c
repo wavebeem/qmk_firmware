@@ -1,18 +1,12 @@
 #include QMK_KEYBOARD_H
 
-enum planck_keycodes {
-  SONG_1 = SAFE_RANGE,
-  SONG_2,
-  SONG_3
-};
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [0] = LAYOUT_planck_grid(
     KC_ESC  , KC_Q    , KC_W    , KC_E    , KC_R   , KC_T    , KC_Y    , KC_U    , KC_I    , KC_O    , KC_P     , KC_BSPC ,
     KC_TAB  , KC_A    , KC_S    , KC_D    , KC_F   , KC_G    , KC_H    , KC_J    , KC_K    , KC_L    , KC_SCLN  , KC_QUOT ,
-    KC_LSFT , KC_Z    , KC_X    , KC_C    , KC_V   , KC_B    , KC_N    , KC_M    , KC_COMM , KC_DOT  , KC_SLSH  , KC_ENT  ,
-    MO(4)   , KC_LCTL , KC_LALT , KC_LGUI , MO(1)  , KC_SPC  , KC_SPC  , MO(2)   , MO(3)   , KC_RGUI , KC_RALT  , KC_RCTL
+    KC_LSFT , KC_Z    , KC_X    , KC_C    , KC_V   , KC_B    , KC_N    , KC_M    , KC_COMM , KC_DOT  , KC_SLSH  , KC_RSFT ,
+    KC_LCTL , KC_LALT , KC_LGUI , MO(4)   , MO(1)  , KC_ENT  , KC_SPC  , MO(2)   , MO(3)   , KC_RGUI , KC_RALT  , KC_RCTL
   ),
 
   [1] = LAYOUT_planck_grid(
@@ -30,9 +24,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [3] = LAYOUT_planck_grid(
-    _______ , KC_7    , KC_8    , KC_9    , KC_0    , _______ , _______ , _______ , KC_HOME , KC_UP   , KC_END  , KC_BSPC ,
-    _______ , KC_4    , KC_5    , KC_6    , KC_0    , _______ , _______ , KC_TAB  , KC_LEFT , KC_DOWN , KC_RGHT , KC_DEL  ,
-    _______ , KC_1    , KC_2    , KC_3    , KC_0    , _______ , _______ , _______ , KC_PGDN , KC_PGUP , KC_TAB  , KC_ENT  ,
+    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_HOME , KC_UP   , KC_END  , KC_BSPC ,
+    _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_TAB  , KC_LEFT , KC_DOWN , KC_RGHT , KC_DEL  ,
+    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_PGDN , KC_PGUP , KC_TAB  , KC_ENT  ,
     _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______
   ),
 
@@ -40,44 +34,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______ , _______ , _______ , _______ , _______ , _______ , _______ , KC_SLSH , KC_7    , KC_8    , KC_9    , KC_BSPC ,
     _______ , KC_MUTE , KC_VOLD , KC_VOLU , _______ , _______ , _______ , KC_MINS , KC_4    , KC_5    , KC_6    , KC_PLUS ,
     KC_CAPS , KC_MPLY , KC_MPRV , KC_MNXT , _______ , _______ , _______ , KC_TAB  , KC_1    , KC_2    , KC_3    , KC_ENT  ,
-    _______ , SONG_1  , SONG_2  , SONG_3  , _______ , RESET   , RESET   , _______ , KC_COMM , KC_0    , KC_DOT  , KC_ASTR
+    _______ , _______ , _______ , _______ , _______ , RESET   , RESET   , _______ , KC_COMM , KC_0    , KC_DOT  , KC_ASTR
   )
 
 };
-
-// Find songs in `quantum/audio/song_list.h`
-#ifdef AUDIO_ENABLE
-  float song_1[][2] = SONG(ZELDA_PUZZLE);
-  float song_2[][2] = SONG(ZELDA_TREASURE);
-  float song_3[][2] = SONG(COIN_SOUND);
-#endif
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case SONG_1:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(song_1);
-        #endif
-      }
-      return false;
-      break;
-    case SONG_2:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(song_2);
-        #endif
-      }
-      return false;
-      break;
-    case SONG_3:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(song_3);
-        #endif
-      }
-      return false;
-      break;
-  }
-  return true;
-}
