@@ -51,6 +51,7 @@ enum macro_keycodes {
 //Macros
 #define M_SAMPLE M(KC_SAMPLEMACRO)
 
+// Customizations from @wavebeem
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // ########## BASE LAYER #######################################################################################################################
@@ -110,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ,---------,---------,---------,---------,---------,---------,                   ,---------,---------,---------,---------,---------,---------,
      XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX ,                     XXXXXXX , RGB_HUD , RGB_HUI , RGB_TOG , XXXXXXX , XXXXXXX ,
 // ,---------,---------,---------,---------,---------,---------,                   ,---------,---------,---------,---------,---------,---------,
-     XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX ,                     XXXXXXX , RGB_VAD , RGB_VAI , RGB_MOD , KC_DEL  , KC_DEL  ,
+     XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX ,                     XXXXXXX , RGB_VAD , RGB_VAI , RGB_MOD , XXXXXXX , XXXXXXX ,
 // ,---------,---------,---------,---------,---------,---------,                   ,---------,---------,---------,---------,---------,---------,
      XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX ,                     XXXXXXX , RGB_SAD , RGB_SAI , RGB_RMOD, XXXXXXX , XXXXXXX ,
 // ,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,
