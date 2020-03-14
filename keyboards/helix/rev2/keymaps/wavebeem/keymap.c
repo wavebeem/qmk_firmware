@@ -18,6 +18,9 @@ extern rgblight_config_t rgblight_config;
 
 extern uint8_t is_master;
 
+// static uint16_t last_anim = 0;
+static bool anim = false;
+
 // Each layer gets a name for readability, which is then used in the keymap matrix below.
 // The underscores don't mean anything - you can have a layer called STUFF or any other name.
 // Layer names don't all need to be of the same length, obviously, and you can also skip them
@@ -152,6 +155,7 @@ void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  anim = !anim;
   switch (keycode) {
     case QWERTY:
       if (record->event.pressed) {
@@ -291,7 +295,9 @@ void matrix_init_user(void) {
     #endif
     //SSD1306 OLED init, make sure to add #define SSD1306OLED in config.h
     #ifdef SSD1306OLED
-        iota_gfx_init(!has_usb());   // turns on the display
+        // iota_gfx_init(!has_usb());   // turns on the display
+        // iota_gfx_init(true);   // turns on the display
+        iota_gfx_init(false);   // turns on the display
     #endif
 }
 
@@ -345,46 +351,56 @@ void matrix_update(struct CharacterMatrix *dest,
 #define L_ADJUST_TRI (L_ADJUST|L_RAISE|L_LOWER)
 
 static void render_logo(struct CharacterMatrix *matrix) {
-
-  static char logo[]={
-    0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
-    0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
-    0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,
-    0};
+  static const char *logo =
+    "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\n"
+    "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\n"
+    "\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\n"
+    "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef";
+//   static char logo[] = {
+//     0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,'\n',
+//     0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,'\n',
+//     0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,'\n',
+//     0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef,'\0',
+//   };
   matrix_write(matrix, logo);
   //matrix_write_P(&matrix, PSTR(" Split keyboard kit"));
 }
 
-
-
-void render_status(struct CharacterMatrix *matrix) {
-
-  // Render to mode icon
-  static char logo[][2][3]={{{0x95,0x96,0},{0xb5,0xb6,0}},{{0x97,0x98,0},{0xb7,0xb8,0}}};
-  if(keymap_config.swap_lalt_lgui==false){
-    matrix_write(matrix, logo[0][0]);
-    matrix_write_P(matrix, PSTR("\n"));
-    matrix_write(matrix, logo[0][1]);
-  }else{
-    matrix_write(matrix, logo[1][0]);
-    matrix_write_P(matrix, PSTR("\n"));
-    matrix_write(matrix, logo[1][1]);
-  }
-
-  // Define layers here, Have not worked out how to have text displayed for each layer. Copy down the number you see and add a case for it below
-  char buf[40];
-  snprintf(buf,sizeof(buf), "Undef-%ld", layer_state);
-  matrix_write_P(matrix, PSTR("\n@wavebeem"));
-
-  // Host Keyboard LED Status
-  char led[40];
-    snprintf(led, sizeof(led), "\n%s  %s  %s",
-            (host_keyboard_leds() & (1<<USB_LED_NUM_LOCK)) ? "NUMLOCK" : "       ",
-            (host_keyboard_leds() & (1<<USB_LED_CAPS_LOCK)) ? "CAPS" : "    ",
-            (host_keyboard_leds() & (1<<USB_LED_SCROLL_LOCK)) ? "SCLK" : "    ");
-  matrix_write(matrix, led);
+static void render_logo2(struct CharacterMatrix *matrix) {
+  static char logo[] = {
+    0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0x9b,0x9c,0x9d,0x9e,0x9f,'\n',
+    0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf,'\n',
+    0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xdb,0xdc,0xdd,0xde,0xdf,'\n',
+    0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff,'\0'
+  };
+  matrix_write(matrix, logo);
+  //matrix_write_P(&matrix, PSTR(" Split keyboard kit"));
 }
 
+void render_sprite(struct CharacterMatrix *matrix, uint8_t sprite_index) {
+  matrix->dirty = true;
+//   uint8_t sprite_width = 4;
+//   uint8_t sprite_height = 16;
+//   uint8_t char_offset = 16;
+//   uint8_t i = char_offset + sprite_index * sprite_width * sprite_height;
+  uint8_t i = 0x10;
+  for (int col = 0; col < MatrixCols; col++) {
+    for (int row = 0; row < MatrixRows; row++) {
+    //   matrix->display[row][col] = col % 2 == 0 || row % 2 == 0 ? 0x10 : 0x11;
+      matrix->display[row][col] = i++;
+    }
+  }
+}
+
+// static uint8_t sprite_index = 0;
+
+// void render_status(struct CharacterMatrix *matrix) {
+//     if (anim) {
+//         matrix_write_P(matrix, PSTR("+++"));
+//     } else {
+//         matrix_write_P(matrix, PSTR("---"));
+//     }
+// }
 
 void iota_gfx_task_user(void) {
   struct CharacterMatrix matrix;
@@ -395,9 +411,18 @@ void iota_gfx_task_user(void) {
   }
 #endif
 
+//   if (timer_elapsed(last_anim) > 300) {
+//       last_anim = timer_read();
+//       anim = !anim;
+//   }
   matrix_clear(&matrix);
-  if(is_master){
-    render_status(&matrix);
+//   if(is_master){
+  if(anim){
+    // render_status(&matrix);
+    render_logo2(&matrix);
+    // render_logo(&matrix);
+    // sprite_index++;
+    // sprite_index %= 2;
   }else{
     render_logo(&matrix);
   }

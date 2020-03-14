@@ -5,21 +5,26 @@
 #   See TOP/keyboards/helix/rules.mk for a list of options that can be set.
 #   See TOP/docs/config_options.md for more information.
 #
-LINK_TIME_OPTIMIZATION_ENABLE = no  # if firmware size over limit, try this option
 
-# Helix Spacific Build Options
-# you can uncomment and edit follows 7 Variables
-#  jp: 以下の7つの変数を必要に応じて編集し、コメントアウトをはずします。
-HELIX_ROWS = 4                # Helix Rows is 4 or 5
-OLED_ENABLE = yes             # OLED_ENABLE
-LOCAL_GLCDFONT = no           # use each keymaps "helixfont.h" insted of "common/glcdfont.c"
-LED_BACK_ENABLE = no          # LED backlight (Enable WS2812 RGB underlight.)
-LED_UNDERGLOW_ENABLE = yes    # LED underglow (Enable WS2812 RGB underlight.)
-LED_ANIMATIONS = yes          # LED animations
-IOS_DEVICE_ENABLE = no        # connect to IOS device (iPad,iPhone)
-
-# Customizations from @wavebeem
+# If firmware size is over the limit, try this option
+LINK_TIME_OPTIMIZATION_ENABLE = no
+# Helix Rows: 4 or 5
+HELIX_ROWS = 4
+# Enable OLED display
+OLED_ENABLE = yes
+# use each keymaps "helixfont.h" insted of "common/glcdfont.c"
+LOCAL_GLCDFONT = yes
+# LED backlight (Enable WS2812 RGB underlight.)
+LED_BACK_ENABLE = no
+# LED underglow (Enable WS2812 RGB underlight.)
+LED_UNDERGLOW_ENABLE = yes
+# LED animations
+LED_ANIMATIONS = yes
+# connect to IOS device (iPad,iPhone)
+IOS_DEVICE_ENABLE = no
+# Turn off that thing where holding keys on boot can mess up your keyboard
 BOOTMAGIC_ENABLE = no
+# Enable media keys
 EXTRAKEY_ENABLE = yes
 
 # convert Helix-specific options (that represent combinations of standard options)
