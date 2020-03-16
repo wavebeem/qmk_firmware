@@ -17,8 +17,8 @@ extern rgblight_config_t rgblight_config;
 
 extern uint8_t is_master;
 
-static uint16_t typing_timeout = 800;
-static uint16_t frame_time = 200;
+static uint16_t typing_timeout = 1200;
+static uint16_t frame_time = 300;
 static uint16_t last_keypress = 0;
 static uint16_t last_image_swap = 0;
 static bool is_typing = false;
@@ -165,8 +165,10 @@ static void render_logo2(struct CharacterMatrix *matrix) {
 
 static void render_status(struct CharacterMatrix *matrix) {
     matrix_write_P(matrix, PSTR(
-        "Helix keyboard\n"
-        "@wavebeem"
+        "\x1a QMK Helix\n"
+        "\x1a @wavebeem\n"
+        "\x1a pdxkbc.com\n"
+        "\x1a mockbrian.com"
     ));
 }
 
@@ -181,7 +183,10 @@ void iota_gfx_task_user(void) {
         last_keypress = timer_read();
         is_typing = false;
     }
-    if (is_typing && timer_elapsed(last_image_swap) > frame_time) {
+    if (
+        (is_typing || image_swap) &&
+        timer_elapsed(last_image_swap) > frame_time
+    ) {
         last_image_swap = timer_read();
         image_swap = !image_swap;
     }
