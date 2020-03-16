@@ -12,49 +12,22 @@
 #endif
 
 #ifdef RGBLIGHT_ENABLE
-//Following line allows macro to read current RGB settings
 extern rgblight_config_t rgblight_config;
 #endif
 
 extern uint8_t is_master;
 
-// static uint16_t last_anim = 0;
-static bool anim = false;
-
-// Each layer gets a name for readability, which is then used in the keymap matrix below.
-// The underscores don't mean anything - you can have a layer called STUFF or any other name.
-// Layer names don't all need to be of the same length, obviously, and you can also skip them
-// entirely and just use numbers.
-enum layer_number {
-    _QWERTY = 0,
-    _COLEMAK,
-    _DVORAK,
-    _LOWER,
-    _RAISE,
-    _ADJUST
-};
+static uint16_t typing_timeout = 800;
+static uint16_t frame_time = 200;
+static uint16_t last_keypress = 0;
+static uint16_t last_image_swap = 0;
+static bool is_typing = false;
+static bool image_swap = false;
 
 enum custom_keycodes {
-  QWERTY = SAFE_RANGE,
-  COLEMAK,
-  DVORAK,
-  LOWER,
-  RAISE,
-  ADJUST,
-  BACKLIT,
-  EISU,
-  KANA,
-  RGBRST
+  RGBRST = SAFE_RANGE
 };
 
-enum macro_keycodes {
-  KC_SAMPLEMACRO,
-};
-
-//Macros
-#define M_SAMPLE M(KC_SAMPLEMACRO)
-
-// Customizations from @wavebeem
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // ########## BASE LAYER #######################################################################################################################
@@ -123,310 +96,104 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 };
 
-#ifdef AUDIO_ENABLE
-
-float tone_qwerty[][2]     = SONG(QWERTY_SOUND);
-float tone_dvorak[][2]     = SONG(DVORAK_SOUND);
-float tone_colemak[][2]    = SONG(COLEMAK_SOUND);
-float tone_plover[][2]     = SONG(PLOVER_SOUND);
-float tone_plover_gb[][2]  = SONG(PLOVER_GOODBYE_SOUND);
-float music_scale[][2]     = SONG(MUSIC_SCALE_SOUND);
-#endif
-
 // define variables for reactive RGB
 bool TOG_STATUS = false;
 int RGB_current_mode;
 
-void persistent_default_layer_set(uint16_t default_layer) {
-  eeconfig_update_default_layer(default_layer);
-  default_layer_set(default_layer);
-}
-
-// Setting ADJUST layer RGB back to default
-void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
-  if (IS_LAYER_ON(layer1) && IS_LAYER_ON(layer2)) {
-    #ifdef RGBLIGHT_ENABLE
-      //rgblight_mode(RGB_current_mode);
-    #endif
-    layer_on(layer3);
-  } else {
-    layer_off(layer3);
-  }
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  anim = !anim;
-  switch (keycode) {
-    case QWERTY:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(tone_qwerty);
-        #endif
-        persistent_default_layer_set(1UL<<_QWERTY);
-      }
-      return false;
-      break;
-    case COLEMAK:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(tone_colemak);
-        #endif
-        persistent_default_layer_set(1UL<<_COLEMAK);
-      }
-      return false;
-      break;
-    case DVORAK:
-      if (record->event.pressed) {
-        #ifdef AUDIO_ENABLE
-          PLAY_SONG(tone_dvorak);
-        #endif
-        persistent_default_layer_set(1UL<<_DVORAK);
-      }
-      return false;
-      break;
-    case LOWER:
-      if (record->event.pressed) {
-          //not sure how to have keyboard check mode and set it to a variable, so my work around
-          //uses another variable that would be set to true after the first time a reactive key is pressed.
-        if (TOG_STATUS) { //TOG_STATUS checks is another reactive key currently pressed, only changes RGB mode if returns false
-        } else {
-          TOG_STATUS = !TOG_STATUS;
-          #ifdef RGBLIGHT_ENABLE
-            //rgblight_mode(RGBLIGHT_MODE_SNAKE + 1);
-          #endif
-        }
-        layer_on(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      } else {
-        #ifdef RGBLIGHT_ENABLE
-          //rgblight_mode(RGB_current_mode);   // revert RGB to initial mode prior to RGB mode change
-        #endif
-        TOG_STATUS = false;
-        layer_off(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case RAISE:
-      if (record->event.pressed) {
-        //not sure how to have keyboard check mode and set it to a variable, so my work around
-        //uses another variable that would be set to true after the first time a reactive key is pressed.
-        if (TOG_STATUS) { //TOG_STATUS checks is another reactive key currently pressed, only changes RGB mode if returns false
-        } else {
-          TOG_STATUS = !TOG_STATUS;
-          #ifdef RGBLIGHT_ENABLE
-            //rgblight_mode(RGBLIGHT_MODE_SNAKE);
-          #endif
-        }
-        layer_on(_RAISE);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      } else {
-        #ifdef RGBLIGHT_ENABLE
-          //rgblight_mode(RGB_current_mode);  // revert RGB to initial mode prior to RGB mode change
-        #endif
-        layer_off(_RAISE);
-        TOG_STATUS = false;
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case ADJUST:
-        if (record->event.pressed) {
-          layer_on(_ADJUST);
-        } else {
-          layer_off(_ADJUST);
-        }
-        return false;
-        break;
-      //led operations - RGB mode change now updates the RGB_current_mode to allow the right RGB mode to be set after reactive keys are released
-    case RGB_MOD:
-      #ifdef RGBLIGHT_ENABLE
-        if (record->event.pressed) {
-          rgblight_mode(RGB_current_mode);
-          rgblight_step();
-          RGB_current_mode = rgblight_config.mode;
-        }
-      #endif
-      return false;
-      break;
-    case EISU:
-      if (record->event.pressed) {
-        if(keymap_config.swap_lalt_lgui==false){
-          register_code(KC_LANG2);
-        }else{
-          SEND_STRING(SS_LALT("`"));
-        }
-      } else {
-        unregister_code(KC_LANG2);
-      }
-      return false;
-      break;
-    case KANA:
-      if (record->event.pressed) {
-        if(keymap_config.swap_lalt_lgui==false){
-          register_code(KC_LANG1);
-        }else{
-          SEND_STRING(SS_LALT("`"));
-        }
-      } else {
-        unregister_code(KC_LANG1);
-      }
-      return false;
-      break;
-    case RGBRST:
-      #ifdef RGBLIGHT_ENABLE
-        if (record->event.pressed) {
-          eeconfig_update_rgblight_default();
-          rgblight_enable();
-          RGB_current_mode = rgblight_config.mode;
-        }
-      #endif
-      break;
-  }
-  return true;
+    if (record->event.pressed) {
+        last_keypress = timer_read();
+        is_typing = true;
+    }
+    switch (keycode) {
+        case RGBRST:
+            #ifdef RGBLIGHT_ENABLE
+                if (record->event.pressed) {
+                    eeconfig_update_rgblight_default();
+                    rgblight_enable();
+                    RGB_current_mode = rgblight_config.mode;
+                }
+            #endif
+            break;
+    }
+    return true;
 }
 
 void matrix_init_user(void) {
-    #ifdef AUDIO_ENABLE
-        startup_user();
-    #endif
     #ifdef RGBLIGHT_ENABLE
-      RGB_current_mode = rgblight_config.mode;
+        RGB_current_mode = rgblight_config.mode;
     #endif
-    //SSD1306 OLED init, make sure to add #define SSD1306OLED in config.h
     #ifdef SSD1306OLED
-        // iota_gfx_init(!has_usb());   // turns on the display
-        // iota_gfx_init(true);   // turns on the display
-        iota_gfx_init(false);   // turns on the display
+        iota_gfx_init(true);
     #endif
 }
 
 
-#ifdef AUDIO_ENABLE
-
-void startup_user()
-{
-    _delay_ms(20); // gets rid of tick
-}
-
-void shutdown_user()
-{
-    _delay_ms(150);
-    stop_all_notes();
-}
-
-void music_on_user(void)
-{
-    music_scale_user();
-}
-
-void music_scale_user(void)
-{
-    PLAY_SONG(music_scale);
-}
-
-#endif
-
-
-//SSD1306 OLED update loop, make sure to add #define SSD1306OLED in config.h
 #ifdef SSD1306OLED
 
 void matrix_scan_user(void) {
-     iota_gfx_task();  // this is what updates the display continuously
+    iota_gfx_task();
 }
 
-void matrix_update(struct CharacterMatrix *dest,
-                          const struct CharacterMatrix *source) {
-  if (memcmp(dest->display, source->display, sizeof(dest->display))) {
-    memcpy(dest->display, source->display, sizeof(dest->display));
-    dest->dirty = true;
-  }
+void matrix_update(
+    struct CharacterMatrix *dest,
+    const struct CharacterMatrix *source
+) {
+    if (memcmp(dest->display, source->display, sizeof(dest->display))) {
+        memcpy(dest->display, source->display, sizeof(dest->display));
+        dest->dirty = true;
+    }
 }
-
-//assign the right code to your layers for OLED display
-#define L_BASE 0
-#define L_LOWER (1<<_LOWER)
-#define L_RAISE (1<<_RAISE)
-#define L_ADJUST (1<<_ADJUST)
-#define L_ADJUST_TRI (L_ADJUST|L_RAISE|L_LOWER)
 
 static void render_logo(struct CharacterMatrix *matrix) {
-  static const char *logo =
-    "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\n"
-    "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\n"
-    "\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\n"
-    "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef";
-//   static char logo[] = {
-//     0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,'\n',
-//     0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,'\n',
-//     0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,'\n',
-//     0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef,'\0',
-//   };
-  matrix_write(matrix, logo);
-  //matrix_write_P(&matrix, PSTR(" Split keyboard kit"));
+    matrix_write_P(matrix, PSTR(
+        "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\n"
+        "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\n"
+        "\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\n"
+        "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef"
+    ));
 }
 
 static void render_logo2(struct CharacterMatrix *matrix) {
-  static char logo[] = {
-    0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,0x9b,0x9c,0x9d,0x9e,0x9f,'\n',
-    0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf,'\n',
-    0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xdb,0xdc,0xdd,0xde,0xdf,'\n',
-    0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff,'\0'
-  };
-  matrix_write(matrix, logo);
-  //matrix_write_P(&matrix, PSTR(" Split keyboard kit"));
+    matrix_write_P(matrix, PSTR(
+        "\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\n"
+        "\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\n"
+        "\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\n"
+        "\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff"
+    ));
 }
 
-void render_sprite(struct CharacterMatrix *matrix, uint8_t sprite_index) {
-  matrix->dirty = true;
-//   uint8_t sprite_width = 4;
-//   uint8_t sprite_height = 16;
-//   uint8_t char_offset = 16;
-//   uint8_t i = char_offset + sprite_index * sprite_width * sprite_height;
-  uint8_t i = 0x10;
-  for (int col = 0; col < MatrixCols; col++) {
-    for (int row = 0; row < MatrixRows; row++) {
-    //   matrix->display[row][col] = col % 2 == 0 || row % 2 == 0 ? 0x10 : 0x11;
-      matrix->display[row][col] = i++;
-    }
-  }
+static void render_status(struct CharacterMatrix *matrix) {
+    matrix_write_P(matrix, PSTR(
+        "Helix keyboard\n"
+        "@wavebeem"
+    ));
 }
-
-// static uint8_t sprite_index = 0;
-
-// void render_status(struct CharacterMatrix *matrix) {
-//     if (anim) {
-//         matrix_write_P(matrix, PSTR("+++"));
-//     } else {
-//         matrix_write_P(matrix, PSTR("---"));
-//     }
-// }
 
 void iota_gfx_task_user(void) {
-  struct CharacterMatrix matrix;
-
-#if DEBUG_TO_SCREEN
-  if (debug_enable) {
-    return;
-  }
-#endif
-
-//   if (timer_elapsed(last_anim) > 300) {
-//       last_anim = timer_read();
-//       anim = !anim;
-//   }
-  matrix_clear(&matrix);
-//   if(is_master){
-  if(anim){
-    // render_status(&matrix);
-    render_logo2(&matrix);
-    // render_logo(&matrix);
-    // sprite_index++;
-    // sprite_index %= 2;
-  }else{
-    render_logo(&matrix);
-  }
-  matrix_update(&display, &matrix);
+    struct CharacterMatrix matrix;
+    #if DEBUG_TO_SCREEN
+        if (debug_enable) {
+            return;
+        }
+    #endif
+    if (timer_elapsed(last_keypress) > typing_timeout) {
+        last_keypress = timer_read();
+        is_typing = false;
+    }
+    if (is_typing && timer_elapsed(last_image_swap) > frame_time) {
+        last_image_swap = timer_read();
+        image_swap = !image_swap;
+    }
+    matrix_clear(&matrix);
+    if (is_master && !image_swap) {
+        render_logo(&matrix);
+    } else if (is_master) {
+        render_logo2(&matrix);
+    } else {
+        render_status(&matrix);
+    }
+    matrix_update(&display, &matrix);
 }
 
 #endif
