@@ -7,8 +7,8 @@
 #ifdef AUDIO_ENABLE
   #include "audio.h"
 #endif
-#ifdef SSD1306OLED
-  #include "ssd1306.h"
+#ifdef OLED_DRIVER_ENABLE
+  #include "oled_driver.h"
 #endif
 
 #ifdef RGBLIGHT_ENABLE
@@ -120,60 +120,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_init_user(void) {
-    #ifdef RGBLIGHT_ENABLE
-        RGB_current_mode = rgblight_config.mode;
-    #endif
-    #ifdef SSD1306OLED
-        iota_gfx_init(true);
-    #endif
+  #ifdef RGBLIGHT_ENABLE
+    RGB_current_mode = rgblight_config.mode;
+  #endif
 }
 
+#ifdef OLED_DRIVER_ENABLE
 
-#ifdef SSD1306OLED
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+  return OLED_ROTATION_180;
+}
 
 void matrix_scan_user(void) {
-    iota_gfx_task();
+    oled_task();
 }
 
-void matrix_update(
-    struct CharacterMatrix *dest,
-    const struct CharacterMatrix *source
-) {
-    if (memcmp(dest->display, source->display, sizeof(dest->display))) {
-        memcpy(dest->display, source->display, sizeof(dest->display));
-        dest->dirty = true;
-    }
-}
-
-static void render_logo(struct CharacterMatrix *matrix) {
-    matrix_write_P(matrix, PSTR(
+static void render_logo(void) {
+    oled_write_P(PSTR(
         "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\n"
         "\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\n"
         "\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\n"
         "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef"
-    ));
+    ), false);
 }
 
-static void render_logo2(struct CharacterMatrix *matrix) {
-    matrix_write_P(matrix, PSTR(
+static void render_logo2(void) {
+    oled_write_P(PSTR(
         "\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\n"
         "\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\n"
         "\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\n"
         "\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff"
-    ));
+    ), false);
 }
 
-static void render_status(struct CharacterMatrix *matrix) {
-    matrix_write_P(matrix, PSTR(
+static void render_status(void) {
+    oled_write_P(PSTR(
         "\x1a QMK Helix\n"
         "\x1a @wavebeem\n"
         "\x1a pdxkbc.com\n"
         "\x1a mockbrian.com"
-    ));
+    ), false);
 }
 
-void iota_gfx_task_user(void) {
-    struct CharacterMatrix matrix;
+void oled_task_user(void) {
     #if DEBUG_TO_SCREEN
         if (debug_enable) {
             return;
@@ -190,15 +179,13 @@ void iota_gfx_task_user(void) {
         last_image_swap = timer_read();
         image_swap = !image_swap;
     }
-    matrix_clear(&matrix);
     if (is_master && !image_swap) {
-        render_logo(&matrix);
+        render_logo();
     } else if (is_master) {
-        render_logo2(&matrix);
+        render_logo2();
     } else {
-        render_status(&matrix);
+        render_status();
     }
-    matrix_update(&display, &matrix);
 }
 
 #endif
