@@ -11,9 +11,9 @@ LINK_TIME_OPTIMIZATION_ENABLE = no
 # Helix Rows: 4 or 5
 HELIX_ROWS = 4
 # Enable OLED display
-OLED_ENABLE = yes
+OLED_DRIVER_ENABLE = yes
 # use each keymaps "helixfont.h" insted of "common/glcdfont.c"
-LOCAL_GLCDFONT = yes
+LOCAL_GLCDFONT = no
 # LED backlight (Enable WS2812 RGB underlight.)
 LED_BACK_ENABLE = no
 # LED underglow (Enable WS2812 RGB underlight.)
