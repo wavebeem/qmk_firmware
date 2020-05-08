@@ -22,7 +22,7 @@ extern uint8_t is_master;
 
 static uint16_t frame_time = 300;
 static uint16_t typing_timeout = 300 * 4;
-static uint16_t oled_timeout = 300 * 8;
+static uint16_t oled_timeout = 300 * 16;
 static uint16_t last_keypress = 0;
 static uint16_t last_image_swap = 0;
 static bool is_typing = false;
