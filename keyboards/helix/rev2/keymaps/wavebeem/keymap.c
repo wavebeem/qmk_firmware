@@ -20,13 +20,15 @@
 
 extern uint8_t is_master;
 
-static uint16_t frame_time = 300;
-static uint16_t typing_timeout = 300 * 4;
-static uint16_t oled_timeout = 300 * 16;
-static uint16_t last_keypress = 0;
-static uint16_t last_image_swap = 0;
-static bool is_typing = false;
-static bool image_swap = false;
+#ifdef OLED_DRIVER_ENABLE
+    static uint16_t frame_time = 300;
+    static uint16_t typing_timeout = 300 * 4;
+    static uint16_t oled_timeout = 300 * 16;
+    static uint16_t last_keypress = 0;
+    static uint16_t last_image_swap = 0;
+    static bool is_typing = false;
+    static bool image_swap = false;
+#endif
 
 enum custom_keycodes {
   RGBRST = SAFE_RANGE
@@ -105,11 +107,13 @@ bool TOG_STATUS = false;
 int RGB_current_mode;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        oled_on();
-        last_keypress = timer_read();
-        is_typing = true;
-    }
+    #ifdef OLED_DRIVER_ENABLE
+        if (record->event.pressed) {
+            oled_on();
+            last_keypress = timer_read();
+            is_typing = true;
+        }
+    #endif
     switch (keycode) {
         case RGBRST:
             #ifdef RGBLIGHT_ENABLE
