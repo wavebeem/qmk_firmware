@@ -31,7 +31,7 @@ extern uint8_t is_master;
 #endif
 
 enum custom_keycodes {
-  RGBRST = SAFE_RANGE
+    RGBRST = SAFE_RANGE
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -137,7 +137,7 @@ void matrix_init_user(void) {
 #ifdef OLED_DRIVER_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  return OLED_ROTATION_180;
+    return OLED_ROTATION_180;
 }
 
 // https://javl.github.io/image2cpp/
@@ -272,7 +272,6 @@ static void render_logo(void) {
 static void render_status(void) {
     oled_write_raw_P(name, sizeof name);
 }
-
 
 void oled_task_user(void) {
     #if DEBUG_TO_SCREEN
