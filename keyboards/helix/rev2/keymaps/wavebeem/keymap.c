@@ -42,6 +42,11 @@ enum Layers {
     LAYER_MEDIA
 };
 
+#define L_NUM MO(LAYER_NUM)
+#define L_NAV MO(LAYER_NAV)
+#define L_GAMES TG(LAYER_GAMES)
+#define L_MEDIA MO(LAYER_MEDIA)
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // ########## BASE LAYER #######################################################################################################################
@@ -53,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ,---------,---------,---------,---------,---------,---------,                   ,---------,---------,---------,---------,---------,---------,
      KC_LSFT , KC_Z    , KC_X    , KC_C    , KC_V    , KC_B    ,                     KC_N    , KC_M    , KC_COMM , KC_DOT  , KC_SLSH , KC_ENT  ,
 // ,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,
-     MO(4)   , KC_LCTL , KC_LALT , KC_LGUI , MO(2)   , KC_RSFT , KC_SPC  , KC_F12  , KC_SPC  , MO(1)   , KC_RGUI , KC_RALT , KC_RCTL , KC_RSFT
+     L_MEDIA , KC_LCTL , KC_LALT , KC_LGUI , L_NAV   , KC_RSFT , KC_SPC  , KC_F12  , KC_SPC  , L_NUM   , KC_RGUI , KC_RALT , KC_RCTL , KC_RSFT
 // ,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,
 ),
 
@@ -105,7 +110,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // ,---------,---------,---------,---------,---------,---------,                   ,---------,---------,---------,---------,---------,---------,
      XXXXXXX , KC_MPRV , KC_MNXT , KC_MPLY , XXXXXXX , XXXXXXX ,                     XXXXXXX , RGB_SAD , RGB_SAI , RGB_RMOD, XXXXXXX , XXXXXXX ,
 // ,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,
-     XXXXXXX , KC_LSFT , RGBRST  , XXXXXXX , XXXXXXX , XXXXXXX , RESET   , TG(3)   , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , KC_CAPS
+     XXXXXXX , KC_LSFT , RGBRST  , XXXXXXX , XXXXXXX , XXXXXXX , RESET   , L_GAMES , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , KC_CAPS
 // ,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,---------,
 ),
 };
