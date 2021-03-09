@@ -182,21 +182,20 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_180;
 }
 
-// TODO: Can I use OLED scrolling to redraw this more efficiently? idk
-void oled_draw_stuff(void) {
-    oled_write_raw_P(screen_texture, sizeof screen_texture);
-}
-
 void oled_task_user(void) {
     #if DEBUG_TO_SCREEN
         if (debug_enable) {
             return;
         }
     #endif
-    oled_draw_stuff();
+    oled_write_raw_P(screen_texture, sizeof screen_texture);
     oled_scroll_left();
 }
 
+// TODO: Only the primary MCU seems to be aware of this function: the secondary
+// MCU continues animating throughout USB suspend. Maybe there's a way to sync
+// state from the primary MCU to the secondary MCU, to work around this
+// limitation.
 void suspend_power_down_user(void) {
     oled_off();
 }
