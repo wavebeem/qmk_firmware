@@ -6,8 +6,6 @@
 #   See TOP/docs/config_options.md for more information.
 #
 
-# If firmware size is over the limit, try this option
-LINK_TIME_OPTIMIZATION_ENABLE = no
 # Helix Rows: 4 or 5
 HELIX_ROWS = 4
 # Enable OLED display
@@ -20,7 +18,7 @@ LED_BACK_ENABLE = no
 LED_UNDERGLOW_ENABLE = yes
 # LED animations
 LED_ANIMATIONS = yes
-# connect to IOS device (iPad,iPhone)
+# Connect to iOS device
 IOS_DEVICE_ENABLE = no
 # Turn off that thing where holding keys on boot can mess up your keyboard
 BOOTMAGIC_ENABLE = no
